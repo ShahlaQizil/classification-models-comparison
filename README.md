@@ -31,7 +31,7 @@ pip install scikit-learn pandas matplotlib seaborn
 ## Usage
 
 ```bash
-python "4 Implementing and evaluating classification models.py"
+python "classification_models_comparison.py"
 ```
 
 Prints each model's accuracy and the detailed precision/recall/F1 breakdown.
