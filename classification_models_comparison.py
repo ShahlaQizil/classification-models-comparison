@@ -30,58 +30,35 @@ y = df['target']
 # Split into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-#Step 4: Implement classification models
-#Logistic regression
+# Step 4: Train and compare models with proper scaling
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-
-# Train logistic regression model
-log_reg = LogisticRegression(max_iter=10000)
-log_reg.fit(X_train, y_train)
-
-# Make predictions
-y_pred = log_reg.predict(X_test)
-
-# Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Logistic Regression Accuracy: {accuracy * 100:.2f}%")
-
-#Decision tree
 from sklearn.tree import DecisionTreeClassifier
-
-# Train decision tree model
-tree = DecisionTreeClassifier()
-tree.fit(X_train, y_train)
-
-# Make predictions
-y_pred_tree = tree.predict(X_test)
-
-# Evaluate the model
-accuracy_tree = accuracy_score(y_test, y_pred_tree)
-print(f"Decision Tree Accuracy: {accuracy_tree * 100:.2f}%")
-
-#Support vector machines
 from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-# Train SVM model
-svm = SVC()
-svm.fit(X_train, y_train)
+models = {
+    "Logistic Regression": LogisticRegression(max_iter=1000),
+    "Decision Tree": DecisionTreeClassifier(random_state=42),
+    "SVM": SVC(),
+}
 
-# Make predictions
-y_pred_svm = svm.predict(X_test)
+results = []
+for name, model in models.items():
+    # Scaling lives inside the pipeline, so it's fit on train data only.
+    clf = make_pipeline(StandardScaler(), model)
+    clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
+    results.append({
+        "Model": name,
+        "Accuracy": accuracy_score(y_test, y_pred),
+        "Precision": precision_score(y_test, y_pred, average="weighted"),
+        "Recall": recall_score(y_test, y_pred, average="weighted"),
+        "F1": f1_score(y_test, y_pred, average="weighted"),
+    })
 
-# Evaluate the model
-accuracy_svm = accuracy_score(y_test, y_pred_svm)
-print(f"SVM Accuracy: {accuracy_svm * 100:.2f}%")
-
-#Step 5: Evaluate model performance
-from sklearn.metrics import precision_score, recall_score, f1_score
-
-# Evaluate logistic regression model
-precision = precision_score(y_test, y_pred, average='weighted')
-recall = recall_score(y_test, y_pred, average='weighted')
-f1 = f1_score(y_test, y_pred, average='weighted')
-
-print(f"Logistic Regression - Precision: {precision:.2f}, Recall: {recall:.2f}, F1 Score: {f1:.2f}")
-
-#Step 6: Compare model performance
+# Step 5: Compare model performance
+comparison = pd.DataFrame(results).set_index("Model").round(4)
+print(comparison)
+print(f"\nBest model by F1: {comparison['F1'].idxmax()}")
