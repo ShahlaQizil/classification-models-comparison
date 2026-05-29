@@ -21,7 +21,7 @@ print(df.info())
 from sklearn.model_selection import train_test_split
 
 # Handle missing values (example: filling missing values with the median)
-df.fillna(df.median(), inplace=True)
+#df.fillna(df.median(), inplace=True)
 
 # Split the data into features and labels
 X = df.drop('target', axis=1)
